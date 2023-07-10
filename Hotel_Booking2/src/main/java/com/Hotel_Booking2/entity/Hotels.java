@@ -5,12 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "hotel")
+@Table(name = "hotels")
 public class Hotels {
 
 
@@ -39,10 +42,18 @@ public class Hotels {
     @Column(name = "originalPrice")
     private Double originalPrice;
 
-    @Column(name = "discountPrice")
-    private Double discountPrice;
+    @Column(name = "discount")
+    private Double discount;
+
+    @Column(name = "totalPrice")
+    private Double totalPrice;
 
     @Column(name = "image")
     private String photoUrl;
+
+
+   @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    private Set<Room> rooms = new HashSet<>();
 
 }

@@ -5,9 +5,12 @@ import com.Hotel_Booking2.payload.HotelsDTO;
 import com.Hotel_Booking2.service.HotelsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/hotels")
@@ -21,14 +24,14 @@ public class HotelsController {
 @PostMapping("/add")
 @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HotelsDTO> createHotels(
-
+         @Valid
         @RequestParam("hotelName") String hotelName,
         @RequestParam("amenities") String amenities,
         @RequestParam("stays") String stays,
         @RequestParam("availability") String availability,
         @RequestParam("location") String location,
         @RequestParam("description") String description,
-        @RequestParam("discountPrice") Double discountPrice,
+        @RequestParam("discount") Double discount,
         @RequestParam("originalPrice") Double originalPrice,
         @RequestParam("photoUrl") MultipartFile imageUrl
 ){
@@ -39,7 +42,7 @@ public class HotelsController {
     hotelsDTO.setAvailability(availability);
     hotelsDTO.setLocation(location);
     hotelsDTO.setDescription(description);
-    hotelsDTO.setDiscountPrice(discountPrice);
+    hotelsDTO.setDiscount(discount);
     hotelsDTO.setOriginalPrice(originalPrice);
     hotelsDTO.setImageUrl(imageUrl);
 
@@ -64,14 +67,16 @@ public class HotelsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HotelsDTO>getHotelsById(@PathVariable(name = "id")Long id){
-        HotelsDTO hotels = hotelsService.getHotelsById(id);
+    public ResponseEntity<HotelsDTO>getHotelsById(@PathVariable(name = "id")Long hotelId){
+        HotelsDTO hotels = hotelsService.getHotelsById(hotelId);
         return new ResponseEntity<>(hotels,HttpStatus.OK);
     }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HotelsDTO> updateByID(
+            @Valid
             @PathVariable(name = "id")Long id,
             @RequestParam("hotelName") String hotelName,
             @RequestParam("amenities") String amenities,
@@ -79,8 +84,9 @@ public class HotelsController {
             @RequestParam("availability") String availability,
             @RequestParam("location") String location,
             @RequestParam("description") String description,
-            @RequestParam("discountPrice") Double discountPrice,
+            @RequestParam("discount") Double discount,
             @RequestParam("originalPrice") Double originalPrice,
+            @RequestParam("totalPrice") Double totalPrice,
             @RequestParam("photoUrl") MultipartFile imageUrl
     ){
         HotelsDTO hotelsDTO = new HotelsDTO();
@@ -91,8 +97,9 @@ public class HotelsController {
         hotelsDTO.setAvailability(availability);
         hotelsDTO.setLocation(location);
         hotelsDTO.setDescription(description);
-        hotelsDTO.setDiscountPrice(discountPrice);
+        hotelsDTO.setDiscount(discount);
         hotelsDTO.setOriginalPrice(originalPrice);
+        hotelsDTO.setTotalPrice(totalPrice);
         hotelsDTO.setImageUrl(imageUrl);
         HotelsDTO hotelsDTO1 = hotelsService.updateHotel(hotelsDTO, id);
 
@@ -100,7 +107,7 @@ public class HotelsController {
     }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteHotels(@PathVariable(name = "id")Long id){
+    public ResponseEntity<String> deleteHotels(@Valid @PathVariable(name = "id")Long id){
         hotelsService.deleteHotelDetails(id);
         return new ResponseEntity<>("Hotel Details Delete Successfully",HttpStatus.OK);
     }

@@ -28,7 +28,9 @@ public class HotelsDTO {
 
     private Double originalPrice;
 
-    private Double discountPrice;
+    private Double discount;
+
+    private Double totalPrice;
 
     private String photoUrl;
 

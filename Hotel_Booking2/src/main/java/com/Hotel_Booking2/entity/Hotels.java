@@ -52,8 +52,10 @@ public class Hotels {
     private String photoUrl;
 
 
-   @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+   @OneToMany(mappedBy = "hotels", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Room>rooms = new HashSet<>();
 
-    private Set<Room> rooms = new HashSet<>();
+    @OneToMany(mappedBy = "hotels", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Review>reviews = new HashSet<>();
 
 }

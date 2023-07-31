@@ -1,6 +1,7 @@
 package com.Hotel_Booking2.service.Impl;
 
 import com.Hotel_Booking2.entity.Hotels;
+
 import com.Hotel_Booking2.exception.ResourceNotFoundException;
 import com.Hotel_Booking2.payload.HotelResponse;
 import com.Hotel_Booking2.payload.HotelsDTO;
@@ -40,17 +41,21 @@ public HotelsServiceImpl(HotelsRepository hotelsRepository){
         hotels.setAvailability(hotelsDTO.getAvailability());
         hotels.setLocation(hotelsDTO.getLocation());
         hotels.setDescription(hotelsDTO.getDescription());
-        hotels.setDiscountPrice(hotelsDTO.getDiscountPrice());
+        hotels.setDiscount(hotelsDTO.getDiscount());
         hotels.setOriginalPrice(hotelsDTO.getOriginalPrice());
+        hotelsDTO.getTotalPrice();
+        double discountAmount = hotelsDTO.getOriginalPrice() * (hotelsDTO.getDiscount() / 100);
+        double totalPrice = hotelsDTO.getOriginalPrice() - discountAmount;
+        hotels.setTotalPrice(totalPrice);
 
         MultipartFile imageUrl = hotelsDTO.getImageUrl();
         if (imageUrl != null && !imageUrl.isEmpty()){
             String image = saveImage(imageUrl);
             hotels.setPhotoUrl(image);
-        }
-
+       }
         Hotels saveHotel = hotelsRepository.save(hotels);
         HotelsDTO hotelsDTO1 = mapToDTO(saveHotel);
+
         return hotelsDTO1;
     }
 
@@ -79,16 +84,16 @@ public HotelsServiceImpl(HotelsRepository hotelsRepository){
     @Override
     public HotelsDTO getHotelsById(Long id) {
        //get hotels from database
-        Hotels hotels = hotelsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        Hotels hotel = hotelsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
 
 
-        return mapToDTO(hotels);
+        return mapToDTO(hotel);
     }
 
     @Override
     public HotelsDTO updateHotel(HotelsDTO hotelsDTO, Long id) {
         //get hotels from database
-        Hotels hotels = hotelsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        Hotels hotels = hotelsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotels", "id", id));
 
         hotels.setId(hotelsDTO.getId());
         hotels.setHotelName(hotelsDTO.getHotelName());
@@ -97,7 +102,8 @@ public HotelsServiceImpl(HotelsRepository hotelsRepository){
         hotels.setAvailability(hotelsDTO.getAvailability());
         hotels.setLocation(hotelsDTO.getLocation());
         hotels.setDescription(hotelsDTO.getDescription());
-        hotels.setDiscountPrice(hotelsDTO.getDiscountPrice());
+        hotels.setDiscount(hotelsDTO.getDiscount());
+        hotels.setTotalPrice(hotelsDTO.getTotalPrice());
         hotels.setOriginalPrice(hotelsDTO.getOriginalPrice());
 
         MultipartFile imageUrl = hotelsDTO.getImageUrl();
@@ -117,7 +123,7 @@ public HotelsServiceImpl(HotelsRepository hotelsRepository){
         hotelsRepository.delete(hotels);
     }
 
-    public HotelsDTO mapToDTO(Hotels saveHotel) {
+    private  HotelsDTO mapToDTO(Hotels saveHotel) {
 
     HotelsDTO hotelsDTO = new HotelsDTO();
         hotelsDTO.setId(saveHotel.getId());
@@ -127,14 +133,15 @@ public HotelsServiceImpl(HotelsRepository hotelsRepository){
         hotelsDTO.setAvailability(saveHotel.getAvailability());
         hotelsDTO.setLocation(saveHotel.getLocation());
         hotelsDTO.setDescription(saveHotel.getDescription());
-        hotelsDTO.setDiscountPrice(saveHotel.getDiscountPrice());
+        hotelsDTO.setDiscount(saveHotel.getDiscount());
+        hotelsDTO.setTotalPrice(saveHotel.getTotalPrice());
         hotelsDTO.setOriginalPrice(saveHotel.getOriginalPrice());
         hotelsDTO.setPhotoUrl(saveHotel.getPhotoUrl());
 
         return hotelsDTO;
     }
 
-     public String saveImage(MultipartFile imageUrl) {
+    private String saveImage(MultipartFile imageUrl) {
         try {
             byte[] bytes = imageUrl.getBytes();
             String originalFileName = imageUrl.getOriginalFilename();
@@ -147,6 +154,7 @@ public HotelsServiceImpl(HotelsRepository hotelsRepository){
             return uniqueFileName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save profile image", e);
+
         }
 
 
